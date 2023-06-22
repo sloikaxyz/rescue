@@ -62,6 +62,36 @@ function OwnedNftListItem({ nft }: { nft: OwnedNft }) {
   );
 }
 
+function OwnedNftsGroupHeader({
+  contract,
+  count,
+}: {
+  contract: {
+    address: string;
+    name?: string | undefined;
+    openSea?: { collectionName?: string | undefined } | undefined;
+    tokenType: string;
+  };
+  count: number;
+}) {
+  const { address, name, openSea, tokenType } = contract;
+
+  return (
+    <div className="sticky top-0 z-10 flex justify-between border-y border-b-gray-200 border-t-gray-100 bg-gray-50 px-3 py-1.5 text-sm font-semibold leading-6 text-gray-900">
+      <h3>
+        {openSea?.collectionName ?? name ?? address}
+        <span className="ml-2 inline-flex items-center rounded-md bg-gray-50 px-1 py-0.5 text-xs font-medium uppercase text-gray-600 ring-1 ring-inset ring-gray-500/10">
+          {tokenType}
+        </span>
+      </h3>
+
+      <div>
+        {count} {count != 1 ? "tokens" : "token"}
+      </div>
+    </div>
+  );
+}
+
 function OwnedNftsContainer({ address }: { address: string }) {
   const { error, data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery({
@@ -109,7 +139,10 @@ function OwnedNftsContainer({ address }: { address: string }) {
 
   return (
     <section>
-      <h2 id="cart-heading">{ownedNfts.length} NFTs found</h2>
+      <h2 id="cart-heading">
+        {ownedNfts.length}
+        {hasNextPage ? "+" : ""} NFTs found
+      </h2>
       {Object.entries(groupedOwnedNfts).map(
         ([contractAddress, ownedNftsInCollection]) => {
           const sampleNft = ownedNftsInCollection[0];
@@ -118,14 +151,10 @@ function OwnedNftsContainer({ address }: { address: string }) {
 
           return (
             <div key={contractAddress} className="relative">
-              <div className="sticky top-0 z-10 border-y border-b-gray-200 border-t-gray-100 bg-gray-50 px-3 py-1.5 text-sm font-semibold leading-6 text-gray-900">
-                <h3 className="inline-block">
-                  {contract.openSea?.collectionName ?? contract.name}
-                </h3>
-                <span className="ml-2 inline-flex items-center rounded-md bg-gray-50 px-1 py-0.5 text-xs font-medium uppercase text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                  {contract.tokenType}
-                </span>
-              </div>
+              <OwnedNftsGroupHeader
+                contract={contract}
+                count={ownedNftsInCollection.length}
+              />
               <ul
                 role="list"
                 className="divide-y divide-gray-200 border-y border-gray-200"
@@ -159,8 +188,8 @@ function OwnedNftsContainer({ address }: { address: string }) {
 }
 
 export default function Assets() {
-  // const address = "tchebotarev.eth";
-  const address = "0xa60b50f27E49d5E606a6a916A3f56ce1555CFc42";
+  const address = "tchebotarev.eth";
+  // const address = "0xa60b50f27E49d5E606a6a916A3f56ce1555CFc42";
 
   return (
     <main>
